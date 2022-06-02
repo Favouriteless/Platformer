@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 648729410}
   - component: {fileID: 648729408}
   - component: {fileID: 648729409}
+  - component: {fileID: 648729412}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -340,6 +341,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   motor: {fileID: 648729409}
+  dash: {fileID: 648729412}
   jumpTolerance: 0.15
 --- !u!114 &648729409
 MonoBehaviour:
@@ -355,14 +357,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 648729411}
   col: {fileID: 648729410}
-  maxSpeedX: 3
+  maxSpeedX: 4
   maxSpeedY: 15
-  acceleration: 5
-  decceleration: 10
-  accelerationAirMultiplier: 0.25
-  deccelerationAirMultiplier: 0.25
+  acceleration: 7
+  decceleration: 11
+  accelerationAirMultiplier: 0.6
+  deccelerationAirMultiplier: 0.6
   jumpVelocity: 9
-  gravity: 9
+  gravity: 14
   gravityMultiplier: 3
   driftSpeed: 0.01
   groundMask:
@@ -419,6 +421,29 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &648729412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648729404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4f3feef3f3d014ebc56641264c4ae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rb: {fileID: 648729411}
+  col: {fileID: 648729410}
+  graphic: {fileID: 272849426}
+  maxRange: 4
+  dashSpeed: 20
+  startTime: 0.5
+  vibrationMax: 0.1
+  endTime: 0.3
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &916319374
 GameObject:
   m_ObjectHideFlags: 0

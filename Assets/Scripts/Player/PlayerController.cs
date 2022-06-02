@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMotor))]
+[RequireComponent(typeof(PlayerDash))]
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     public PlayerMotor motor;
+    public PlayerDash dash;
 
     [Header("Control Settings")]
     public float jumpTolerance;
@@ -16,27 +18,51 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        switch(state)
+        if (Input.GetButtonDown("Jump"))
+            jumpTimer = jumpTolerance;
+
+        motor.inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        motor.inputJump = jumpTimer >= 0f;
+        motor.jumpHold = Input.GetButton("Jump");
+
+        if(state != PlayerState.DASH)
         {
-            case PlayerState.DEFAULT:
-                if (Input.GetButtonDown("Jump"))
-                    jumpTimer = jumpTolerance;
-
-                motor.inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-                motor.inputJump = jumpTimer >= 0f;
-                motor.jumpHold = Input.GetButton("Jump");
-                break;
-
-            default:
-                break;
+            if(Input.GetButtonDown("Dash"))
+            {
+                state = PlayerState.DASH;
+                dash.StartDash(motor.inputVector.normalized);
+            }
         }
+
         jumpTimer -= Time.deltaTime;
     }
 
-    private enum PlayerState
+    private void FixedUpdate()
+    {
+        switch (state)
+        {
+            case PlayerState.DEFAULT:
+                motor.Execute();
+                break;
+            case PlayerState.DASH:
+                dash.Execute();
+                if (dash.State == PlayerDash.DashState.DONE)
+                    state = PlayerState.DEFAULT;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public enum PlayerState
     {
         DEFAULT,
         DASH,
         CLIMB
     }
+}
+
+public abstract class PlayerStateHandler : MonoBehaviour
+{
+    public abstract void Execute();
 }

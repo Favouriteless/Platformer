@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class PlayerMotor : MonoBehaviour
+public class PlayerMotor : PlayerStateHandler
 {
     [Header("References")]
     public Rigidbody2D rb;
@@ -42,7 +42,7 @@ public class PlayerMotor : MonoBehaviour
         isGrounded = GetGrounded();
     }
 
-    private void FixedUpdate()
+    public override void Execute()
     {
         Vector2 velocity = rb.velocity;
         float aMultiplier = 1f;
@@ -52,8 +52,6 @@ public class PlayerMotor : MonoBehaviour
         {
             if (inputJump)
                 velocity.y = jumpVelocity;
-            else
-                velocity.y = 0f;
         }
         else
         {
