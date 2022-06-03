@@ -85,7 +85,7 @@ public class PlayerDash : PlayerStateHandler
         timer = startTime;
 
         RaycastHit2D hit = Physics2D.BoxCast(transform.position, col.size, 0f, _direction, maxRange, groundMask);
-        destination = hit ? hit.point : transform.position + new Vector3(_direction.x, _direction.y, 0f)*maxRange;
+        destination = hit ? hit.centroid : transform.position + new Vector3(_direction.x, _direction.y, 0f)*maxRange;
     }
 
     public enum DashState

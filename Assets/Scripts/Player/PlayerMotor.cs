@@ -4,11 +4,13 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(PlayerController))]
 public class PlayerMotor : PlayerStateHandler
 {
     [Header("References")]
     public Rigidbody2D rb;
     public BoxCollider2D col;
+    public PlayerController controller;
 
     [Header("Movement Settings")]
     public float maxSpeedX;
@@ -18,6 +20,8 @@ public class PlayerMotor : PlayerStateHandler
     public float accelerationAirMultiplier;
     public float deccelerationAirMultiplier;
     public float jumpVelocity;
+    public float wallSlideSpeed;
+    public Vector2 wallJumpVelocity;
 
     [Header("Physics Settings")]
     public float gravity;
@@ -36,10 +40,18 @@ public class PlayerMotor : PlayerStateHandler
     }
 
     private bool isGrounded;
+    private bool isWallLeft;
+    private bool isWallRight;
+    private bool isWallFootLeft;
+    private bool isWallFootRight;
 
     private void Update()
     {
-        isGrounded = GetGrounded();
+        isGrounded = GetFloorContact(Vector2.down);
+        isWallLeft = GetFloorContact(Vector2.left);
+        isWallRight = GetFloorContact(Vector2.right);
+        isWallFootLeft = GetFootContact(Vector2.left);
+        isWallFootRight = GetFootContact(Vector2.right);
     }
 
     public override void Execute()
@@ -51,7 +63,10 @@ public class PlayerMotor : PlayerStateHandler
         if(IsGrounded)
         {
             if (inputJump)
+            {
                 velocity.y = jumpVelocity;
+                controller.ResetJumpTimer();
+            }
         }
         else
         {
@@ -61,8 +76,29 @@ public class PlayerMotor : PlayerStateHandler
             float g = gravity;
             if (rb.velocity.y < 0f || !jumpHold)
                 g *= gravityMultiplier;
+            velocity.y -= g * Time.fixedDeltaTime; // Regular gravity
 
-            velocity.y -= g * Time.fixedDeltaTime;
+            if (velocity.y < -wallSlideSpeed) // Wall sliding
+            {
+                if ((isWallLeft && inputVector.x == -1f) || (isWallRight && inputVector.x == 1f))
+                    velocity.y = -wallSlideSpeed;
+            }
+
+            if(inputJump) // Wall jump
+            {
+                float mult = 0f;
+                if (isWallFootLeft)
+                    mult = 1f;
+                else if (isWallFootRight)
+                    mult = -1f;
+
+                if (mult != 0) 
+                {
+                    controller.ResetJumpTimer();
+                    velocity.x += wallJumpVelocity.x * mult;
+                    velocity.y = wallJumpVelocity.y;
+                }
+            };
         }
 
         // ------------------------------------- HORIZONTAL MOVEMENT -------------------------------------
@@ -84,9 +120,14 @@ public class PlayerMotor : PlayerStateHandler
         rb.velocity = new Vector2(Mathf.Clamp(velocity.x, -maxSpeedX, maxSpeedX), Mathf.Clamp(velocity.y, -maxSpeedY, maxSpeedY));
     }
 
-    private bool GetGrounded()
+    private bool GetFloorContact(Vector2 dir)
     {
-        return Physics2D.BoxCast(transform.position, col.size, 0f, Vector2.down, groundedDistance, groundMask);
+        return Physics2D.BoxCast(transform.position, col.size, 0f, dir, groundedDistance, groundMask);
+    }
+
+    private bool GetFootContact(Vector2 dir)
+    {
+        return Physics2D.BoxCast(transform.position + new Vector3(0f, -col.size.y/4), new Vector2(col.size.x, col.size.y / 2), 0f, dir, groundedDistance, groundMask);
     }
 
 }

@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [Header("Control Settings")]
     public float jumpTolerance;
 
+    private int dashCharges = 1;
     private float jumpTimer;
     private PlayerState state = PlayerState.DEFAULT;
 
@@ -29,12 +30,24 @@ public class PlayerController : MonoBehaviour
         {
             if(Input.GetButtonDown("Dash"))
             {
-                state = PlayerState.DASH;
-                dash.StartDash(motor.inputVector.normalized);
+                TryDash();
             }
         }
 
         jumpTimer -= Time.deltaTime;
+    }
+
+    private void TryDash()
+    {
+        if (Input.GetButtonDown("Dash"))
+        {
+            if (dashCharges >= 1 && motor.inputVector != Vector2.zero)
+            {
+                state = PlayerState.DASH;
+                dash.StartDash(motor.inputVector.normalized);
+                dashCharges--;
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -43,6 +56,10 @@ public class PlayerController : MonoBehaviour
         {
             case PlayerState.DEFAULT:
                 motor.Execute();
+                if(motor.IsGrounded)
+                {
+                    dashCharges = 1;
+                }
                 break;
             case PlayerState.DASH:
                 dash.Execute();
@@ -52,6 +69,11 @@ public class PlayerController : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    public void ResetJumpTimer()
+    {
+        jumpTimer = -1f;
     }
 
     public enum PlayerState
