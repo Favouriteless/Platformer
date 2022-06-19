@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -38,18 +36,20 @@ public class PlayerMotor : PlayerStateHandler
     public bool IsGrounded {
         get { return isGrounded; }
     }
+    public bool IsWallFootLeft {
+        get { return isWallFootLeft; }
+    }
+    public bool IsWallFootRight {
+        get { return isWallFootRight; }
+    }
 
     private bool isGrounded;
-    private bool isWallLeft;
-    private bool isWallRight;
     private bool isWallFootLeft;
     private bool isWallFootRight;
 
     private void Update()
     {
         isGrounded = GetFloorContact(Vector2.down);
-        isWallLeft = GetFloorContact(Vector2.left);
-        isWallRight = GetFloorContact(Vector2.right);
         isWallFootLeft = GetFootContact(Vector2.left);
         isWallFootRight = GetFootContact(Vector2.right);
     }
@@ -80,25 +80,14 @@ public class PlayerMotor : PlayerStateHandler
 
             if (velocity.y < -wallSlideSpeed) // Wall sliding
             {
-                if ((isWallLeft && inputVector.x == -1f) || (isWallRight && inputVector.x == 1f))
+                if ((isWallFootLeft && inputVector.x == -1f) || (isWallFootRight && inputVector.x == 1f))
                     velocity.y = -wallSlideSpeed;
             }
 
             if(inputJump) // Wall jump
             {
-                float mult = 0f;
-                if (isWallFootLeft)
-                    mult = 1f;
-                else if (isWallFootRight)
-                    mult = -1f;
-
-                if (mult != 0) 
-                {
-                    controller.ResetJumpTimer();
-                    velocity.x += wallJumpVelocity.x * mult;
-                    velocity.y = wallJumpVelocity.y;
-                }
-            };
+                velocity = ApplyWallJump(velocity);
+            }
         }
 
         // ------------------------------------- HORIZONTAL MOVEMENT -------------------------------------
@@ -127,7 +116,24 @@ public class PlayerMotor : PlayerStateHandler
 
     private bool GetFootContact(Vector2 dir)
     {
-        return Physics2D.BoxCast(transform.position + new Vector3(0f, -col.size.y/4), new Vector2(col.size.x, col.size.y / 2), 0f, dir, groundedDistance, groundMask);
+        return Physics2D.BoxCast(transform.position + new Vector3(0f, -col.size.y/4), new Vector2(col.size.x, col.size.y/2), 0f, dir, groundedDistance, groundMask);
+    }
+
+    public Vector2 ApplyWallJump(Vector2 velocity)
+    {
+        float mult = 0f;
+        if (isWallFootLeft)
+            mult = 1f;
+        else if (isWallFootRight)
+            mult = -1f;
+
+        if (mult != 0)
+        {
+            controller.ResetJumpTimer();
+            velocity.x += wallJumpVelocity.x * mult;
+            velocity.y = wallJumpVelocity.y;
+        }
+        return velocity;
     }
 
 }
