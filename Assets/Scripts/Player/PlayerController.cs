@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     public PlayerMotor motor;
     public PlayerDash dash;
     public PlayerClimb climb;
+    public LayerManager layerManager;
 
     [Header("Control Settings")]
     public float jumpTolerance;
@@ -17,15 +18,22 @@ public class PlayerController : MonoBehaviour
     private float jumpTimer;
     private PlayerState state = PlayerState.DEFAULT;
 
+    private Vector2 inputVector;
+    private bool inputJump;
+    private bool jumpHold;
+
+    public Vector2 InputVector { get { return inputVector; } }
+    public bool InputJump { get { return inputJump; } }
+    public bool JumpHold { get { return jumpHold; } }
+
     private void Update()
     {
         if (Input.GetButtonDown("Jump"))
             jumpTimer = jumpTolerance;
 
-        motor.inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        motor.inputJump = jumpTimer >= 0f;
-        motor.jumpHold = Input.GetButton("Jump");
-        climb.input = motor.inputVector.y;
+        inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        inputJump = jumpTimer >= 0f;
+        jumpHold = Input.GetButton("Jump");
 
         if(state != PlayerState.DASH)
         {
@@ -51,6 +59,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        if(Input.GetButtonDown("Layer"))
+        {
+            layerManager.ToggleLayer(gameObject);
+        }
+
         jumpTimer -= Time.deltaTime;
     }
 
@@ -58,10 +71,10 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Dash"))
         {
-            if (dashCharges >= 1 && motor.inputVector != Vector2.zero)
+            if (dashCharges >= 1 && inputVector != Vector2.zero)
             {
                 state = PlayerState.DASH;
-                dash.StartDash(motor.inputVector.normalized);
+                dash.StartDash(inputVector.normalized);
                 dashCharges--;
             }
         }
@@ -69,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
     private void TryClimb()
     {
-        bool isPressingLeft = motor.inputVector.x < -0.5f;
+        bool isPressingLeft = inputVector.x < -0.5f;
 
         if(isPressingLeft) // If pressing left, prioritise left
         {
@@ -99,9 +112,7 @@ public class PlayerController : MonoBehaviour
             case PlayerState.DEFAULT:
                 motor.Execute();
                 if(motor.IsGrounded)
-                {
                     dashCharges = 1;
-                }
                 break;
             case PlayerState.DASH:
                 dash.Execute();

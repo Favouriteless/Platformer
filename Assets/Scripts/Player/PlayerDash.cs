@@ -28,6 +28,8 @@ public class PlayerDash : PlayerStateHandler
     private DashState state;
     private float timer;
     private Vector3 destination;
+    private float maxTime;
+    private float timeStartedAt;
 
     public override void Execute()
     {
@@ -52,14 +54,15 @@ public class PlayerDash : PlayerStateHandler
         {
             graphic.transform.localPosition = Vector3.zero;
             state = DashState.MOVE;
+            maxTime = maxRange / dashSpeed;
+            timeStartedAt = Time.time;
         }
     }
 
     private void HandleMovement()
     {
-        transform.position = Vector3.MoveTowards(transform.position, destination, dashSpeed * Time.fixedDeltaTime);
-
-        if(transform.position == destination)
+        rb.MovePosition(Vector3.MoveTowards(transform.position, destination, dashSpeed * Time.fixedDeltaTime));
+        if (transform.position == destination || Time.time - timeStartedAt > maxTime)
         {
             timer = endTime;
             rb.velocity = Vector2.zero;

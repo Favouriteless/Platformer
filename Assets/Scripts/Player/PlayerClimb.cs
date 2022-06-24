@@ -1,10 +1,12 @@
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerController))]
 public class PlayerClimb : PlayerStateHandler
 {
     [Header("References")]
     public PlayerMotor motor;
     public Rigidbody2D rb;
+    public PlayerController controller;
 
     [Header("Climb Settings")]
     public float climbSpeed;
@@ -14,14 +16,12 @@ public class PlayerClimb : PlayerStateHandler
 
     [Header("Miscellaneous")]
     public bool isLeft;
-    public float input;
-
 
     public override void Execute()
     {
         Vector2 velocity = rb.velocity;
 
-        if (input == 0f || velocity.y * input < 0f) // If not inputting or inputting opposite direction to velocity
+        if (controller.InputVector.y == 0f || velocity.y * controller.InputVector.y < 0f) // If not inputting or inputting opposite direction to velocity
         {
             int mult = velocity.y > 0f ? -1 : 1;
             float deltaV = decceleration * mult * Time.fixedDeltaTime;
@@ -31,9 +31,9 @@ public class PlayerClimb : PlayerStateHandler
             else
                 velocity.y += deltaV;
         }
-        velocity.y += acceleration * input * Time.fixedDeltaTime;
+        velocity.y += acceleration * controller.InputVector.y * Time.fixedDeltaTime;
 
-        if (motor.inputJump) // Wall jump
+        if (controller.InputJump) // Wall jump
         {
             velocity = motor.ApplyWallJump(velocity);
         }

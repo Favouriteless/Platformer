@@ -28,20 +28,9 @@ public class PlayerMotor : PlayerStateHandler
     public LayerMask groundMask;
     public float groundedDistance;
 
-    [Header("Miscellaneous")]
-    public Vector2 inputVector = new Vector2();
-    public bool inputJump = false;
-    public bool jumpHold = false;
-
-    public bool IsGrounded {
-        get { return isGrounded; }
-    }
-    public bool IsWallFootLeft {
-        get { return isWallFootLeft; }
-    }
-    public bool IsWallFootRight {
-        get { return isWallFootRight; }
-    }
+    public bool IsGrounded { get { return isGrounded; } }
+    public bool IsWallFootLeft { get { return isWallFootLeft; } }
+    public bool IsWallFootRight { get { return isWallFootRight; } }
 
     private bool isGrounded;
     private bool isWallFootLeft;
@@ -62,7 +51,7 @@ public class PlayerMotor : PlayerStateHandler
 
         if(IsGrounded)
         {
-            if (inputJump)
+            if (controller.InputJump)
             {
                 velocity.y = jumpVelocity;
                 controller.ResetJumpTimer();
@@ -73,18 +62,18 @@ public class PlayerMotor : PlayerStateHandler
             aMultiplier = accelerationAirMultiplier;
             dMultiplier = deccelerationAirMultiplier;
 
-            float g = gravity;
-            if (rb.velocity.y < 0f || !jumpHold)
+            float g = controller.layerManager.ActiveLayer == Layers.GRAVITY ? -gravity : gravity;
+            if (rb.velocity.y < 0f || !controller.JumpHold)
                 g *= gravityMultiplier;
             velocity.y -= g * Time.fixedDeltaTime; // Regular gravity
 
             if (velocity.y < -wallSlideSpeed) // Wall sliding
             {
-                if ((isWallFootLeft && inputVector.x == -1f) || (isWallFootRight && inputVector.x == 1f))
+                if ((isWallFootLeft && controller.InputVector.x == -1f) || (isWallFootRight && controller.InputVector.x == 1f))
                     velocity.y = -wallSlideSpeed;
             }
 
-            if(inputJump) // Wall jump
+            if(controller.InputJump) // Wall jump
             {
                 velocity = ApplyWallJump(velocity);
             }
@@ -92,7 +81,7 @@ public class PlayerMotor : PlayerStateHandler
 
         // ------------------------------------- HORIZONTAL MOVEMENT -------------------------------------
 
-        if (inputVector.x == 0f || velocity.x * inputVector.x < 0f) // If not inputting or inputting opposite direction to velocity
+        if (controller.InputVector.x == 0f || velocity.x * controller.InputVector.x < 0f) // If not inputting or inputting opposite direction to velocity
         {
             int mult = velocity.x > 0f ? -1 : 1;
             float deltaV = decceleration * dMultiplier *  mult * Time.fixedDeltaTime;
@@ -102,7 +91,7 @@ public class PlayerMotor : PlayerStateHandler
             else
                 velocity.x += deltaV;
         }
-        velocity.x += acceleration * aMultiplier * inputVector.x * Time.fixedDeltaTime;
+        velocity.x += acceleration * aMultiplier * controller.InputVector.x * Time.fixedDeltaTime;
 
         if (Mathf.Abs(velocity.x) < driftSpeed) // To stop drifting at near zero velocities;
             velocity.x = 0;
