@@ -10,7 +10,7 @@ public class LayerZone : MonoBehaviour
 
     private void Awake()
     {
-        layer = Layers.LAYERS.Get(layerName);
+        layer = Layers.REGISTRY.Get(layerName);
         if (layer == null)
             throw new ArgumentException(String.Format("LayerZone could not find layer with name {0}", layerName));
     }
