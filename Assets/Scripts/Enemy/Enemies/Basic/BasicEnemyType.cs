@@ -6,6 +6,6 @@ public class BasicEnemyType : EnemyType<BasicEnemy>
 {
     protected override void SetupGoals()
     {
-
+        AddGoal(new RandomWalkingGoal<BasicEnemy>());
     }
 }

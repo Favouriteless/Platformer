@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RandomWalkingGoal<T> : Goal<T>
+public class RandomWalkingGoal<T> : Goal<T> where T : IEnemyMotor
 {
     public override void Execute(Enemy enemy)
     {

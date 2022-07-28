@@ -28,9 +28,9 @@ public class PlayerMotor : PlayerStateHandler
     public LayerMask groundMask;
     public float groundedDistance;
 
-    public bool IsGrounded { get { return isGrounded; } }
-    public bool IsWallFootLeft { get { return isWallFootLeft; } }
-    public bool IsWallFootRight { get { return isWallFootRight; } }
+    public bool IsGrounded => isGrounded;
+    public bool IsWallFootLeft => isWallFootLeft;
+    public bool IsWallFootRight => isWallFootRight;
 
     private bool isGrounded;
     private bool isWallFootLeft;
@@ -62,7 +62,7 @@ public class PlayerMotor : PlayerStateHandler
             aMultiplier = accelerationAirMultiplier;
             dMultiplier = deccelerationAirMultiplier;
 
-            float g = controller.layerManager.ActiveLayer == Layers.GRAVITY ? -gravity : gravity;
+            float g = LayerManager.INSTANCE.ActiveLayer == Layers.GRAVITY ? -gravity : gravity;
             if (rb.velocity.y < 0f || !controller.JumpHold)
                 g *= gravityMultiplier;
             velocity.y -= g * Time.fixedDeltaTime; // Regular gravity

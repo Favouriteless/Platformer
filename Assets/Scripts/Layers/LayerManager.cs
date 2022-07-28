@@ -9,6 +9,11 @@ public class LayerManager : MonoBehaviour
     public AbstractLayer ActiveLayer { get; }
     private AbstractLayer activeLayer = Layers.NORMAL;
 
+    private void Awake()
+    {
+        INSTANCE = this;
+    }
+
     public void Switch(AbstractLayer layer)
     {
         activeLayer.SwitchTo(layer);
@@ -30,7 +35,11 @@ public class LayerManager : MonoBehaviour
             }
         }
         Switch(Layers.NORMAL);
-        if (activeLayer == Layers.GRAVITY) Debug.Log("Grav");
+    }
+
+    private void OnDestroy()
+    {
+        INSTANCE = null;
     }
 
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,7 +28,6 @@ public class EnemyManager : MonoBehaviour
 
     private void Awake()
     {
-        Destroy(INSTANCE.gameObject);
         INSTANCE = this;
     }
 
@@ -55,6 +53,11 @@ public class EnemyManager : MonoBehaviour
         {
             enemy.GetEnemyType().ProcessGoals(enemy);
         }
+    }
+
+    private void OnDestroy()
+    {
+        INSTANCE = null;
     }
 
 }

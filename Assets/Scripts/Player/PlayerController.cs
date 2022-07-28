@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
     public PlayerMotor motor;
     public PlayerDash dash;
     public PlayerClimb climb;
-    public LayerManager layerManager;
 
     [Header("Control Settings")]
     public float jumpTolerance;
@@ -61,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetButtonDown("Layer"))
         {
-            layerManager.ToggleLayer(gameObject);
+            LayerManager.INSTANCE.ToggleLayer(gameObject);
         }
 
         jumpTimer -= Time.deltaTime;

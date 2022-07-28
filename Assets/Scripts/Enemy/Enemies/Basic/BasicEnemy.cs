@@ -1,9 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class BasicEnemy : Enemy
+[RequireComponent(typeof(EnemyMotor))]
+public class BasicEnemy : Enemy, IEnemyMotor
 {
+    [Header("References")]
+    public EnemyMotor motor;
+
+    public EnemyMotor Motor => motor;
+
     public override EnemyType GetEnemyType()
     {
         return Enemies.BASIC;
